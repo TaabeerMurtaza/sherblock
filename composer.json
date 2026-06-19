@@ -1,0 +1,22 @@
+{
+    "name": "taabeermurtaza/sherblock",
+    "description": "Gutenberg block inspection tool for WordPress.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SherBlock\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SherBlock\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

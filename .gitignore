@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Editors (VS Code / Cursor)
+.vscode/
+.cursor/
+
+# Dependencies & build output
+node_modules/
+vendor/
+dist/
+
+# Logs & local config
+npm-debug.log*
+yarn-error.log*
+.env
