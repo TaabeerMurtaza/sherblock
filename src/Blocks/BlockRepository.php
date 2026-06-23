@@ -16,6 +16,8 @@ use SherBlock\Providers\BlockProviderManager;
  */
 final class BlockRepository implements BlockRepositoryInterface {
 
+	private bool $hydrated = false;
+
 	public function __construct(
 		private readonly BlockRegistry $registry,
 		private readonly BlockProviderManager $providerManager,
@@ -26,15 +28,24 @@ final class BlockRepository implements BlockRepositoryInterface {
 	 * {@inheritDoc}
 	 */
 	public function findAll(): array {
-		// TODO: Merge provider discoveries into registry, then return registry->all().
-		return $this->registry->all();
+		$this->hydrate();
+
+		$blocks = $this->registry->all();
+
+		usort(
+			$blocks,
+			static fn ( Block $a, Block $b ): int => strcasecmp( $a->getTitle(), $b->getTitle() )
+		);
+
+		return $blocks;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function findByName( string $name ): ?Block {
-		// TODO: Ensure registry is hydrated before lookup.
+		$this->hydrate();
+
 		return $this->registry->get( $name );
 	}
 
@@ -42,7 +53,101 @@ final class BlockRepository implements BlockRepositoryInterface {
 	 * {@inheritDoc}
 	 */
 	public function findByProvider( string $providerId ): array {
-		// TODO: Filter blocks where Block::getProvider() matches $providerId.
-		return [];
+		$this->hydrate();
+
+		return array_values(
+			array_filter(
+				$this->registry->all(),
+				static fn ( Block $block ): bool => $block->getProvider() === $providerId
+			)
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function findFiltered( ?string $category = null, ?string $provider = null, ?string $search = null ): array {
+		$blocks = $this->findAll();
+
+		if ( null !== $category ) {
+			$blocks = array_values(
+				array_filter(
+					$blocks,
+					static fn ( Block $block ): bool => $block->getCategory() === $category
+				)
+			);
+		}
+
+		if ( null !== $provider ) {
+			$blocks = array_values(
+				array_filter(
+					$blocks,
+					static fn ( Block $block ): bool => $block->getProvider() === $provider
+				)
+			);
+		}
+
+		if ( null !== $search ) {
+			$blocks = array_values(
+				array_filter(
+					$blocks,
+					static fn ( Block $block ): bool => false !== stripos( $block->getName(), $search )
+				)
+			);
+		}
+
+		return $blocks;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDistinctCategories(): array {
+		$this->hydrate();
+
+		$categories = array_unique(
+			array_map(
+				static fn ( Block $block ): string => $block->getCategory(),
+				$this->registry->all()
+			)
+		);
+
+		$categories = array_values(
+			array_filter(
+				$categories,
+				static fn ( string $category ): bool => '' !== $category
+			)
+		);
+
+		sort( $categories, SORT_STRING | SORT_FLAG_CASE );
+
+		return $categories;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDistinctProviders(): array {
+		$this->hydrate();
+
+		$providers = array_unique(
+			array_map(
+				static fn ( Block $block ): string => $block->getProvider(),
+				$this->registry->all()
+			)
+		);
+
+		sort( $providers, SORT_STRING | SORT_FLAG_CASE );
+
+		return array_values( $providers );
+	}
+
+	private function hydrate(): void {
+		if ( $this->hydrated ) {
+			return;
+		}
+
+		$this->registry->registerMany( $this->providerManager->discoverAll() );
+		$this->hydrated = true;
 	}
 }

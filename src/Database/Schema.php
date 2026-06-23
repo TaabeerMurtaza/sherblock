@@ -24,9 +24,19 @@ final class Schema {
 	 * @return array<string, string> Table suffix => CREATE TABLE SQL (without dbDelta call).
 	 */
 	public function getTables(): array {
-		// TODO: Return SQL for block_usage and optional index_meta tables.
+		$table   = $this->getBlockUsageTableName();
+		$charset = $this->getCharsetCollate();
+
 		return [
-			'block_usage' => '',
+			'block_usage' => "CREATE TABLE {$table} (
+				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				post_id bigint(20) unsigned NOT NULL,
+				block_name varchar(191) NOT NULL,
+				meta longtext NULL,
+				PRIMARY KEY  (id),
+				KEY post_id (post_id),
+				KEY block_name (block_name)
+			) {$charset};",
 		];
 	}
 

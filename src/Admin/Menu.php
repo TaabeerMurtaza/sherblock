@@ -22,9 +22,9 @@ final class Menu {
 	public const MENU_SLUG = 'sherblock';
 
 	public function __construct(
-		private readonly BlockListPage $blockListPage = new BlockListPage(),
-		private readonly BlockDetailPage $blockDetailPage = new BlockDetailPage(),
-		private readonly CptListPage $cptListPage = new CptListPage(),
+		private readonly BlockListPage $blockListPage,
+		private readonly CptListPage $cptListPage,
+		private readonly BlockDetailPage $blockDetailPage,
 		private readonly CptDetailPage $cptDetailPage = new CptDetailPage(),
 	) {
 	}

@@ -22,25 +22,43 @@ final class BlockUsageFinder {
 	}
 
 	/**
-	 * @return array<int, array<string, mixed>> Post records referencing the block.
+	 * @return PostBlockUsage[]
 	 */
 	public function findPostsUsingBlock( string $blockName ): array {
-		// TODO: Query index repository and map rows to lightweight post summaries.
-		return $this->indexRepository->findByBlock( $blockName );
+		$rows = $this->indexRepository->findByBlock( $blockName );
+
+		return array_map(
+			static fn ( array $row ): PostBlockUsage => new PostBlockUsage(
+				(int) $row['post_id'],
+				(string) $row['post_title'],
+				(string) $row['post_type'],
+				(string) $row['post_type_label'],
+				(string) $row['post_status'],
+				(int) $row['block_occurrences'],
+				(int) $row['total_block_types'],
+				(string) $row['edit_link'],
+			),
+			$rows
+		);
 	}
 
 	/**
 	 * @return string[] Block names found in the given post.
 	 */
 	public function findBlocksInPost( int $postId ): array {
-		// TODO: Return block names from index; fall back to live parse_blocks() if stale.
 		$rows = $this->indexRepository->findByPost( $postId );
 
-		return array_column( $rows, 'block_name' );
+		return array_values(
+			array_unique(
+				array_map(
+					static fn ( array $row ): string => (string) ( $row['block_name'] ?? '' ),
+					$rows
+				)
+			)
+		);
 	}
 
 	public function countUsages( string $blockName ): int {
-		// TODO: Return total usage count from index.
 		return count( $this->findPostsUsingBlock( $blockName ) );
 	}
 }

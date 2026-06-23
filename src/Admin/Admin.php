@@ -15,7 +15,7 @@ namespace SherBlock\Admin;
 final class Admin {
 
 	public function __construct(
-		private readonly Menu $menu = new Menu(),
+		private readonly Menu $menu,
 		private readonly Assets $assets = new Assets(),
 	) {
 	}

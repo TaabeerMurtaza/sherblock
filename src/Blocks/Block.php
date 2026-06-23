@@ -15,8 +15,9 @@ namespace SherBlock\Blocks;
 final class Block {
 
 	/**
-	 * @param array<string, mixed> $attributes Default or schema attributes.
-	 * @param array<string, mixed> $supports   Block support flags.
+	 * @param array<string, mixed> $attributes    Default or schema attributes.
+	 * @param array<string, mixed> $supports      Block support flags.
+	 * @param int|null             $sourcePostId  Source post ID when a block maps to a CPT row (e.g. Lazy Blocks).
 	 */
 	public function __construct(
 		private readonly string $name,
@@ -25,6 +26,7 @@ final class Block {
 		private readonly string $provider,
 		private readonly array $attributes = [],
 		private readonly array $supports = [],
+		private readonly ?int $sourcePostId = null,
 	) {
 	}
 
@@ -56,5 +58,9 @@ final class Block {
 	 */
 	public function getSupports(): array {
 		return $this->supports;
+	}
+
+	public function getSourcePostId(): ?int {
+		return $this->sourcePostId;
 	}
 }

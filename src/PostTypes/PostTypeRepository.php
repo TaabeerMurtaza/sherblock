@@ -23,17 +23,54 @@ final class PostTypeRepository implements PostTypeRepositoryInterface {
 	 * {@inheritDoc}
 	 */
 	public function findAllBlockEnabled(): array {
-		// TODO: Iterate get_post_types(), wrap each in PostType when supportsBlocks() is true.
-		return [];
+		$objects = get_post_types( [], 'objects' );
+		$post_types = [];
+
+		foreach ( $objects as $object ) {
+			if ( ! $object->public ) {
+				continue;
+			}
+
+			if ( ! $this->supportChecker->supportsBlocks( $object->name ) ) {
+				continue;
+			}
+
+			$post_types[] = $this->hydrate( $object );
+		}
+
+		usort(
+			$post_types,
+			static fn( PostType $a, PostType $b ): int => strcasecmp( $a->getLabel(), $b->getLabel() )
+		);
+
+		return $post_types;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function findByName( string $name ): ?PostType {
-		// TODO: Resolve single post type object via get_post_type_object().
-		unset( $name );
+		$object = get_post_type_object( $name );
 
-		return null;
+		if ( ! $object instanceof \WP_Post_Type ) {
+			return null;
+		}
+
+		if ( ! $this->supportChecker->supportsBlocks( $object->name ) ) {
+			return null;
+		}
+
+		return $this->hydrate( $object );
+	}
+
+	private function hydrate( \WP_Post_Type $object ): PostType {
+		$label = $object->labels->name ?? $object->label;
+
+		return new PostType(
+			$object->name,
+			is_string( $label ) ? $label : $object->name,
+			$this->supportChecker->supportsBlocks( $object->name ),
+			(bool) $object->public,
+		);
 	}
 }

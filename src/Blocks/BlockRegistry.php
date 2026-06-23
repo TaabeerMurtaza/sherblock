@@ -18,7 +18,7 @@ final class BlockRegistry {
 	private array $blocks = [];
 
 	public function register( Block $block ): void {
-		$this->blocks[ $block->getName() ] = $block;
+		$this->blocks[ $this->resolveKey( $block ) ] = $block;
 	}
 
 	/**
@@ -38,11 +38,31 @@ final class BlockRegistry {
 	}
 
 	public function get( string $name ): ?Block {
-		return $this->blocks[ $name ] ?? null;
+		if ( isset( $this->blocks[ $name ] ) ) {
+			return $this->blocks[ $name ];
+		}
+
+		foreach ( $this->blocks as $block ) {
+			if ( $block->getName() === $name ) {
+				return $block;
+			}
+		}
+
+		return null;
 	}
 
 	public function has( string $name ): bool {
-		return isset( $this->blocks[ $name ] );
+		return null !== $this->get( $name );
+	}
+
+	private function resolveKey( Block $block ): string {
+		$post_id = $block->getSourcePostId();
+
+		if ( null !== $post_id ) {
+			return 'post:' . $post_id;
+		}
+
+		return $block->getName();
 	}
 
 	public function clear(): void {

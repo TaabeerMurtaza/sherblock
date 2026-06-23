@@ -15,21 +15,43 @@ namespace SherBlock\Index;
 final class IndexBuilder {
 
 	/**
-	 * @return array<int, array<string, mixed>> Rows ready for IndexRepositoryInterface::store().
+	 * @return array<int, array{block_name: string}>
 	 */
 	public function buildFromContent( string $content, int $postId ): array {
-		// TODO: Call parse_blocks( $content ), walk nested innerBlocks, return flat usage rows.
-		unset( $content, $postId );
+		unset( $postId );
 
-		return [];
+		$parsed = parse_blocks( $content );
+		$names  = $this->collectBlockNames( $parsed );
+		$rows   = [];
+
+		foreach ( $names as $name ) {
+			$rows[] = [ 'block_name' => $name ];
+		}
+
+		return $rows;
 	}
 
 	/**
 	 * @param array<int, array<string, mixed>> $blocks Parsed block tree from parse_blocks().
-	 * @return string[] Unique block names including nested blocks.
+	 * @return string[] Block names in document order, one entry per occurrence.
 	 */
 	private function collectBlockNames( array $blocks ): array {
-		// TODO: Recursively collect blockName from each node and innerBlocks.
-		return [];
+		$names = [];
+
+		foreach ( $blocks as $block ) {
+			$block_name = $block['blockName'] ?? '';
+
+			if ( is_string( $block_name ) && '' !== $block_name ) {
+				$names[] = $block_name;
+			}
+
+			$inner = $block['innerBlocks'] ?? [];
+
+			if ( is_array( $inner ) && [] !== $inner ) {
+				$names = array_merge( $names, $this->collectBlockNames( $inner ) );
+			}
+		}
+
+		return $names;
 	}
 }

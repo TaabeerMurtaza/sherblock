@@ -21,25 +21,37 @@ final class CoreBlockProvider implements BlockProviderInterface {
 	}
 
 	public function isAvailable(): bool {
-		// TODO: Always available when block editor APIs exist.
-		return function_exists( 'WP_Block_Type_Registry' );
+		return class_exists( \WP_Block_Type_Registry::class );
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function discoverBlocks(): array {
-		// TODO: Read WP_Block_Type_Registry::get_instance()->get_all_registered().
-		return [];
+		$registry = \WP_Block_Type_Registry::get_instance();
+		$blocks   = [];
+
+		foreach ( $registry->get_all_registered() as $block_type ) {
+			$blocks[] = $this->mapToBlock( $block_type );
+		}
+
+		return $blocks;
 	}
 
-	/**
-	 * @param object $blockType WP_Block_Type instance.
-	 */
-	private function mapToBlock( object $blockType ): Block {
-		// TODO: Map registry entry to Block value object with provider id "core".
-		unset( $blockType );
+	private function mapToBlock( \WP_Block_Type $block_type ): Block {
+		$title = $block_type->title;
 
-		return new Block( '', '', '', $this->getId() );
+		if ( ! is_string( $title ) || '' === $title ) {
+			$title = $block_type->name;
+		}
+
+		return new Block(
+			$block_type->name,
+			$title,
+			is_string( $block_type->category ) ? $block_type->category : '',
+			$this->getId(),
+			is_array( $block_type->attributes ) ? $block_type->attributes : [],
+			is_array( $block_type->supports ) ? $block_type->supports : [],
+		);
 	}
 }

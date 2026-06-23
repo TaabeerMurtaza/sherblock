@@ -10,12 +10,25 @@ declare(strict_types=1);
 namespace SherBlock;
 
 use SherBlock\Admin\Admin;
+use SherBlock\Admin\Menu;
+use SherBlock\Admin\Pages\BlockDetailPage;
+use SherBlock\Admin\Pages\BlockListPage;
+use SherBlock\Admin\Pages\CptListPage;
+use SherBlock\Blocks\BlockRegistry;
+use SherBlock\Blocks\BlockRepository;
+use SherBlock\Blocks\BlockUsageFinder;
 use SherBlock\Database\Migration;
 use SherBlock\Database\Schema;
+use SherBlock\Index\DatabaseIndexRepository;
+use SherBlock\Index\IndexBuilder;
+use SherBlock\Index\Indexer;
+use SherBlock\PostTypes\BlockSupportChecker;
+use SherBlock\PostTypes\PostTypeRepository;
 use SherBlock\Providers\AcfProvider;
 use SherBlock\Providers\BlockProviderManager;
 use SherBlock\Providers\CarbonFieldsProvider;
 use SherBlock\Providers\CoreBlockProvider;
+use SherBlock\Providers\LazyBlocksProvider;
 
 /**
  * Registers services and boots plugin subsystems.
@@ -29,6 +42,8 @@ final class Plugin {
 	private BlockProviderManager $providerManager;
 
 	private Migration $migration;
+
+	private Indexer $indexer;
 
 	private function __construct() {
 		$this->registerServices();
@@ -54,14 +69,33 @@ final class Plugin {
 	 * Wire up dependencies. Expand as repositories and indexers are implemented.
 	 */
 	private function registerServices(): void {
+		global $wpdb;
+
 		$this->providerManager = new BlockProviderManager();
 		$this->providerManager->register( new CoreBlockProvider() );
 		$this->providerManager->register( new AcfProvider() );
 		$this->providerManager->register( new CarbonFieldsProvider() );
+		$this->providerManager->register( new LazyBlocksProvider() );
 
-		// TODO: Instantiate BlockRepository, Indexer, PostTypeRepository, etc.
-		$this->migration = new Migration( new Schema() );
-		$this->admin       = new Admin();
+		$schema              = new Schema();
+		$blockSupportChecker = new BlockSupportChecker();
+		$postTypeRepository  = new PostTypeRepository( $blockSupportChecker );
+		$blockRegistry       = new BlockRegistry();
+		$blockRepository     = new BlockRepository( $blockRegistry, $this->providerManager );
+		$indexRepository     = new DatabaseIndexRepository( $wpdb, $schema );
+		$indexBuilder        = new IndexBuilder();
+		$blockUsageFinder    = new BlockUsageFinder( $indexRepository );
+
+		$this->migration = new Migration( $schema );
+		$this->indexer   = new Indexer( $indexBuilder, $indexRepository, $blockSupportChecker, $schema );
+
+		$this->admin = new Admin(
+			new Menu(
+				new BlockListPage( $blockRepository ),
+				new CptListPage( $postTypeRepository ),
+				new BlockDetailPage( $blockRepository, $blockUsageFinder ),
+			),
+		);
 	}
 
 	/**
@@ -71,23 +105,26 @@ final class Plugin {
 		register_activation_hook(
 			SHERBLOCK_FILE,
 			function (): void {
-				// TODO: Run database migration on activation.
 				$this->migration->run();
+				$this->indexer->indexAll();
 			}
 		);
 
 		add_action(
 			'init',
 			function (): void {
-				// TODO: Load text domain, schedule initial index build if needed.
+				load_plugin_textdomain(
+					'sherblock',
+					false,
+					dirname( plugin_basename( SHERBLOCK_FILE ) ) . '/languages'
+				);
 			}
 		);
 
 		add_action(
 			'save_post',
 			function ( int $post_id ): void {
-				// TODO: Re-index block usage for the saved post via Indexer.
-				unset( $post_id );
+				$this->indexer->indexPost( $post_id );
 			}
 		);
 	}

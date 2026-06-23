@@ -25,4 +25,19 @@ interface BlockRepositoryInterface {
 	 * @return Block[]
 	 */
 	public function findByProvider( string $providerId ): array;
+
+	/**
+	 * @return Block[]
+	 */
+	public function findFiltered( ?string $category = null, ?string $provider = null, ?string $search = null ): array;
+
+	/**
+	 * @return string[]
+	 */
+	public function getDistinctCategories(): array;
+
+	/**
+	 * @return string[]
+	 */
+	public function getDistinctProviders(): array;
 }

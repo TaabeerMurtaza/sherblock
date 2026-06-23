@@ -21,7 +21,6 @@ final class AcfProvider implements BlockProviderInterface {
 	}
 
 	public function isAvailable(): bool {
-		// TODO: Check for ACF and acf_get_block_types().
 		return function_exists( 'acf_get_block_types' );
 	}
 
@@ -29,7 +28,42 @@ final class AcfProvider implements BlockProviderInterface {
 	 * {@inheritDoc}
 	 */
 	public function discoverBlocks(): array {
-		// TODO: Map ACF block definitions to Block value objects.
-		return [];
+		$acf_blocks = acf_get_block_types();
+
+		if ( ! is_array( $acf_blocks ) ) {
+			return [];
+		}
+
+		$blocks = [];
+
+		foreach ( $acf_blocks as $acf_block ) {
+			if ( ! is_array( $acf_block ) ) {
+				continue;
+			}
+
+			$mapped = $this->mapToBlock( $acf_block );
+
+			if ( '' !== $mapped->getName() ) {
+				$blocks[] = $mapped;
+			}
+		}
+
+		return $blocks;
+	}
+
+	/**
+	 * @param array<string, mixed> $acf_block
+	 */
+	private function mapToBlock( array $acf_block ): Block {
+		$name = isset( $acf_block['name'] ) ? (string) $acf_block['name'] : '';
+
+		return new Block(
+			$name,
+			(string) ( $acf_block['title'] ?? $name ),
+			(string) ( $acf_block['category'] ?? 'common' ),
+			$this->getId(),
+			is_array( $acf_block['attributes'] ?? null ) ? $acf_block['attributes'] : [],
+			[],
+		);
 	}
 }

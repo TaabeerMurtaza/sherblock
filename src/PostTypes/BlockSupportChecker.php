@@ -15,16 +15,18 @@ namespace SherBlock\PostTypes;
 final class BlockSupportChecker {
 
 	public function supportsBlocks( string $postType ): bool {
-		// TODO: Check post type supports 'editor' and use_block_editor_for_post_type().
-		unset( $postType );
+		if ( ! post_type_exists( $postType ) ) {
+			return false;
+		}
 
-		return false;
+		return use_block_editor_for_post_type( $postType );
 	}
 
 	public function supportsCustomFields( string $postType ): bool {
-		// TODO: Useful for ACF/Carbon meta-backed blocks on hybrid post types.
-		unset( $postType );
+		if ( ! post_type_exists( $postType ) ) {
+			return false;
+		}
 
-		return false;
+		return post_type_supports( $postType, 'custom-fields' );
 	}
 }

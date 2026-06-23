@@ -10,13 +10,19 @@ declare(strict_types=1);
 namespace SherBlock\Admin\Pages;
 
 use SherBlock\Admin\Menu;
+use SherBlock\PostTypes\PostTypeRepositoryInterface;
 
 /**
- * Lists custom post types that support the block editor.
+ * Lists public inbuilt and custom post types that support the block editor.
  */
 final class CptListPage {
 
 	public const SLUG = 'sherblock-cpts';
+
+	public function __construct(
+		private readonly PostTypeRepositoryInterface $postTypeRepository,
+	) {
+	}
 
 	public function register(): void {
 		add_submenu_page(
@@ -30,8 +36,7 @@ final class CptListPage {
 	}
 
 	public function render(): void {
-		// TODO: Inject PostTypeRepository and list block-enabled CPTs.
-		$post_types = [];
+		$post_types = $this->postTypeRepository->findAllBlockEnabled();
 
 		$this->loadView( 'post-types/list.php', compact( 'post_types' ) );
 	}
