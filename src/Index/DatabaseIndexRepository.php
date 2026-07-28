@@ -136,6 +136,72 @@ final class DatabaseIndexRepository implements IndexRepositoryInterface {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function countDistinctPosts(): int {
+		$table = $this->schema->getBlockUsageTableName();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from schema.
+		$sql = "SELECT COUNT( DISTINCT post_id ) FROM {$table}";
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, read-only.
+		$result = $this->wpdb->get_var( $sql );
+
+		return (int) $result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getTopBlocks( int $limit ): array {
+		$table = $this->schema->getBlockUsageTableName();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from schema.
+		$sql = $this->wpdb->prepare(
+			"SELECT block_name, COUNT(*) AS usage_count, COUNT( DISTINCT post_id ) AS post_count
+			FROM {$table}
+			GROUP BY block_name
+			ORDER BY usage_count DESC
+			LIMIT %d",
+			$limit
+		);
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
+		$rows = $this->wpdb->get_results( $sql, ARRAY_A );
+
+		return is_array( $rows ) ? $rows : [];
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getRecentPosts( int $limit ): array {
+		$usage_table = $this->schema->getBlockUsageTableName();
+		$posts_table = $this->wpdb->posts;
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names from schema / $wpdb.
+		$sql = $this->wpdb->prepare(
+			"SELECT
+				p.ID AS post_id,
+				p.post_title,
+				p.post_type,
+				p.post_date,
+				COUNT( DISTINCT bu.block_name ) AS block_count
+			FROM {$usage_table} bu
+			INNER JOIN {$posts_table} p ON p.ID = bu.post_id
+			GROUP BY p.ID
+			ORDER BY p.post_date DESC
+			LIMIT %d",
+			$limit
+		);
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
+		$rows = $this->wpdb->get_results( $sql, ARRAY_A );
+
+		return is_array( $rows ) ? $rows : [];
+	}
+
+	/**
 	 * @param array<string, mixed> $row
 	 * @return array<string, mixed>
 	 */

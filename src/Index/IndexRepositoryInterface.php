@@ -35,4 +35,16 @@ interface IndexRepositoryInterface {
 	 * @return array<int, array<string, mixed>>
 	 */
 	public function findByPostType( string $postType ): array;
+
+	public function countDistinctPosts(): int;
+
+	/**
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function getTopBlocks( int $limit ): array;
+
+	/**
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function getRecentPosts( int $limit ): array;
 }
