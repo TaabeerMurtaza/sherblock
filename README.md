@@ -1,74 +1,126 @@
 # SherBlock
 
-A WordPress admin helper for inspecting Gutenberg blocks and block-enabled content across your site.
-
-SherBlock gives developers and site builders a single place to see what custom blocks are registered, which post types support the block editor, and how blocks and content relate to each other.
+A WordPress admin tool for inspecting, auditing, and tracking Gutenberg block usage across your site.
 
 ## Overview
 
-Gutenberg blocks can be registered by themes, plugins, and third-party block builders. Over time it becomes hard to answer simple questions:
-
-- Which custom blocks exist on this site?
-- Which post types use the block editor?
-- Where is a specific block used?
-- Which blocks appear on a given post or CPT entry?
-
-SherBlock is built to answer those questions from the WordPress admin.
+SherBlock gives developers and site builders a single dashboard to discover registered blocks, track where they're used, and understand how content is composed across post types.
 
 ## Features
 
-### Current
+### Dashboard
+- Overview stats: total blocks, indexed posts, active providers, Gutenberg post types
+- Most used blocks chart (CSS-only, no external dependencies)
+- Provider status indicators
+- Recently indexed content feed
+- One-click re-index with AJAX progress bar
 
-- **All registered blocks** — Browse every custom Gutenberg block registered on the site.
-- **Block detail view** — Open a single block to see where it is used (posts, pages, and other content that contains that block).
+### Block Discovery
+- Automatic discovery from WordPress core, ACF, Carbon Fields, and Lazy Blocks
+- Pluggable provider system — add new sources by implementing `BlockProviderInterface`
+- Searchable, filterable block list by category and provider
 
-### Planned
+### Usage Indexing
+- Custom database table for fast block-to-post queries
+- Auto-indexes on post save (configurable)
+- Full site re-index with batched AJAX processing
+- Recursive innerBlocks parsing
 
-- **Gutenberg-supported CPTs** — List all custom post types that support the block editor.
-- **CPT detail view** — Open a single post type to see which blocks are used across its entries.
-- **Broader block-builder support** — Integration with popular block registration sources, including:
-  - [Advanced Custom Fields (ACF)](https://www.advancedcustomfields.com/)
-  - [Carbon Fields](https://carbonfields.net/)
-  - [Lazy Blocks](https://www.lazyblocks.com/)
-  - Additional plugins and frameworks as support is added.
+### Admin Pages
+- **Block List** — Browse all registered blocks with search, category/provider filters, pagination
+- **Block Detail** — View block metadata and every post that uses it, with status badges
+- **Post Types** — List all Gutenberg-enabled post types
+- **Post Type Detail** — Block frequency breakdown per post type
+- **Unused Blocks** — Find registered blocks with zero usage
+- **Settings** — Configure auto-indexing, batch size, debug logging
 
-## Admin pages
-
-SherBlock is organized around two main admin sections. Each section has list views and detail views for individual entries.
-
-### 1. Gutenberg-supported CPTs
-
-A directory of custom post types on the site that support the block editor.
-
-| View | Description |
-|------|-------------|
-| **CPT list** | All Gutenberg-enabled custom post types registered on the website. |
-| **CPT detail** | Deep dive into one post type: see which blocks are used across its entries and how content is composed. |
-
-### 2. Registered blocks
-
-A directory of all Gutenberg blocks available on the site.
-
-| View | Description |
-|------|-------------|
-| **Block list** | All custom Gutenberg blocks registered on the website. |
-| **Block detail** | Deep dive into one block: see which posts, pages, and other entries use it. |
+### Premium Features (via Freemius)
+- REST API endpoints for programmatic access to all block data
+- CSV export of block usage data
+- Block usage trends over time
+- Bulk re-index by post type
+- Orphaned index cleanup
+- Multisite support
 
 ## Requirements
 
-- WordPress 6.0 or later (recommended)
-- PHP 7.4 or later
-- A site using the block editor (Gutenberg)
+| Dependency | Version |
+|------------|---------|
+| WordPress  | 6.0+    |
+| PHP        | 8.0+    |
 
 ## Installation
 
 1. Copy the `sherblock` folder into `wp-content/plugins/`.
-2. In **Plugins → Installed Plugins**, activate **SherBlock**.
-3. Open the SherBlock menu in the WordPress admin.
+2. Run `composer install` inside the plugin directory.
+3. Activate **SherBlock** in **Plugins → Installed Plugins**.
+4. Open the **SherBlock** menu in the WordPress admin.
 
-## Development status
+## Architecture
 
-SherBlock is in early development. The initial focus is surfacing all custom Gutenberg blocks registered on a site, with CPT browsing and third-party block-builder integrations to follow.
+SherBlock follows a layered, WordPress-native architecture:
+
+```
+Admin Pages (controllers) → Views (PHP templates)
+       ↓
+Repositories & Finders (data access)
+       ↓
+Services (Indexer, ProviderManager, BlockSupportChecker)
+       ↓
+Value Objects (Block, PostType, PostBlockUsage)
+       ↓
+Providers (pluggable block discovery)
+       ↓
+WordPress APIs / $wpdb
+```
+
+Key design decisions:
+- **Immutable value objects** — `Block`, `PostType`, `PostBlockUsage` are typed, readonly objects
+- **Repository pattern** — Interfaces at all persistence boundaries
+- **Manual DI** — All wiring in `Plugin::registerServices()`, no container
+- **WordPress-native** — Uses `add_action`, `admin_menu`, `dbDelta`, `$wpdb`, transients
+- **`declare(strict_types=1)`** on every PHP file
+
+## Block Providers
+
+| Provider | ID | Plugin Required |
+|----------|----|-----------------|
+| WordPress Core | `core` | None |
+| Advanced Custom Fields | `acf` | ACF Pro |
+| Carbon Fields | `carbon-fields` | Carbon Fields |
+| Lazy Blocks | `lazy-blocks` | Lazy Blocks |
+
+## REST API
+
+SherBlock provides a REST API for programmatic access (premium):
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /wp-json/sherblock/v1/blocks` | List all registered blocks |
+| `GET /wp-json/sherblock/v1/blocks/{name}` | Single block with usage count |
+| `GET /wp-json/sherblock/v1/blocks/{name}/usage` | Posts using a specific block |
+| `GET /wp-json/sherblock/v1/post-types` | Gutenberg-enabled post types |
+| `GET /wp-json/sherblock/v1/post-types/{slug}/blocks` | Block frequency for a post type |
+| `GET /wp-json/sherblock/v1/index/status` | Index health and stats |
+
+## Development
+
+### Setup
+
+```bash
+cd wp-content/plugins/sherblock
+composer install
+```
+
+### Key directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `src/` | All PHP application code (PSR-4: `SherBlock\`) |
+| `views/admin/` | PHP view templates (presentation only) |
+| `assets/css/` | Admin stylesheet |
+| `assets/js/` | Admin JavaScript |
+| `tests/` | PHPUnit tests |
 
 ## Author
 
