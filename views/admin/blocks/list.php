@@ -32,15 +32,19 @@ $pagination_args = [
 
 ?>
 <div class="wrap sherblock sherblock-blocks-list">
-	<h1><?php esc_html_e( 'Registered Blocks', 'sherblock' ); ?></h1>
-	<p class="description">
-		<?php esc_html_e( 'All Gutenberg blocks discovered on this site.', 'sherblock' ); ?>
-	</p>
 
-	<div class="tablenav top">
-		<div class="alignleft actions">
-			<form method="get" class="sherblock-blocks-filters">
-				<input type="hidden" name="page" value="sherblock-blocks" />
+	<div class="sherblock-page-header">
+		<div>
+			<h1><?php esc_html_e( 'Registered Blocks', 'sherblock' ); ?></h1>
+			<p class="description"><?php esc_html_e( 'All Gutenberg blocks discovered on this site.', 'sherblock' ); ?></p>
+		</div>
+	</div>
+
+	<div class="sherblock-filter-bar">
+		<form method="get" class="sherblock-blocks-filters" style="display: contents;">
+			<input type="hidden" name="page" value="sherblock-blocks" />
+			<div class="search-input">
+				<span class="dashicons dashicons-search"></span>
 				<label for="sherblock-search" class="screen-reader-text">
 					<?php esc_html_e( 'Search by block name', 'sherblock' ); ?>
 				</label>
@@ -51,37 +55,79 @@ $pagination_args = [
 					value="<?php echo esc_attr( $search_query ?? '' ); ?>"
 					placeholder="<?php esc_attr_e( 'Search block name…', 'sherblock' ); ?>"
 				/>
-				<label for="sherblock-filter-category" class="screen-reader-text">
-						<?php esc_html_e( 'Filter by category', 'sherblock' ); ?>
-					</label>
-					<select name="category" id="sherblock-filter-category">
-						<option value=""><?php esc_html_e( 'All categories', 'sherblock' ); ?></option>
-						<?php foreach ( $categories as $category ) : ?>
-							<option value="<?php echo esc_attr( $category ); ?>" <?php selected( $filter_category, $category ); ?>>
-								<?php echo esc_html( $category ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-					<label for="sherblock-filter-provider" class="screen-reader-text">
-						<?php esc_html_e( 'Filter by provider', 'sherblock' ); ?>
-					</label>
-					<select name="provider" id="sherblock-filter-provider">
-						<option value=""><?php esc_html_e( 'All providers', 'sherblock' ); ?></option>
-						<?php foreach ( $providers as $provider ) : ?>
-							<option value="<?php echo esc_attr( $provider ); ?>" <?php selected( $filter_provider, $provider ); ?>>
-								<?php echo esc_html( $provider ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				<?php submit_button( __( 'Apply', 'sherblock' ), '', 'filter_action', false ); ?>
-				<?php if ( $filters_active ) : ?>
-					<a href="<?php echo esc_url( $clear_filters_url ); ?>" class="button">
-						<?php esc_html_e( 'Clear', 'sherblock' ); ?>
-					</a>
-				<?php endif; ?>
-			</form>
+			</div>
+			<label for="sherblock-filter-category" class="screen-reader-text">
+				<?php esc_html_e( 'Filter by category', 'sherblock' ); ?>
+			</label>
+			<select name="category" id="sherblock-filter-category">
+				<option value=""><?php esc_html_e( 'All categories', 'sherblock' ); ?></option>
+				<?php foreach ( $categories as $category ) : ?>
+					<option value="<?php echo esc_attr( $category ); ?>" <?php selected( $filter_category, $category ); ?>>
+						<?php echo esc_html( $category ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+			<label for="sherblock-filter-provider" class="screen-reader-text">
+				<?php esc_html_e( 'Filter by provider', 'sherblock' ); ?>
+			</label>
+			<select name="provider" id="sherblock-filter-provider">
+				<option value=""><?php esc_html_e( 'All providers', 'sherblock' ); ?></option>
+				<?php foreach ( $providers as $provider ) : ?>
+					<option value="<?php echo esc_attr( $provider ); ?>" <?php selected( $filter_provider, $provider ); ?>>
+						<?php echo esc_html( $provider ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+			<?php submit_button( __( 'Apply', 'sherblock' ), '', 'filter_action', false ); ?>
+			<?php if ( $filters_active ) : ?>
+				<a href="<?php echo esc_url( $clear_filters_url ); ?>" class="button">
+					<?php esc_html_e( 'Clear', 'sherblock' ); ?>
+				</a>
+			<?php endif; ?>
+		</form>
+	</div>
+
+	<?php if ( $filters_active && $total_items > 0 ) : ?>
+		<div class="sherblock-active-filters">
+			<span><?php esc_html_e( 'Active filters:', 'sherblock' ); ?></span>
+			<?php if ( null !== $filter_category ) : ?>
+				<span class="sherblock-filter-pill">
+					<?php
+					printf(
+						/* translators: %s: category name */
+						esc_html__( 'Category: %s', 'sherblock' ),
+						esc_html( $filter_category )
+					);
+					?>
+				</span>
+			<?php endif; ?>
+			<?php if ( null !== $filter_provider ) : ?>
+				<span class="sherblock-filter-pill">
+					<?php
+					printf(
+						/* translators: %s: provider name */
+						esc_html__( 'Provider: %s', 'sherblock' ),
+						esc_html( $filter_provider )
+					);
+					?>
+				</span>
+			<?php endif; ?>
+			<?php if ( null !== $search_query ) : ?>
+				<span class="sherblock-filter-pill">
+					<?php
+					printf(
+						/* translators: %s: search query */
+						esc_html__( 'Search: %s', 'sherblock' ),
+						esc_html( $search_query )
+					);
+					?>
+				</span>
+			<?php endif; ?>
 		</div>
-		<?php if ( $total_items > 0 ) : ?>
+	<?php endif; ?>
+
+	<?php if ( $total_items > 0 ) : ?>
+		<div class="tablenav top">
 			<div class="tablenav-pages">
 				<span class="displaying-num">
 					<?php
@@ -96,15 +142,20 @@ $pagination_args = [
 					<?php echo wp_kses_post( paginate_links( $pagination_args ) ); ?>
 				<?php endif; ?>
 			</div>
-		<?php endif; ?>
-	</div>
+		</div>
+	<?php endif; ?>
 
 	<?php if ( empty( $blocks ) && 0 === $total_items ) : ?>
-		<?php if ( $filters_active ) : ?>
-			<p><?php esc_html_e( 'No blocks match your search or filters.', 'sherblock' ); ?></p>
-		<?php else : ?>
-			<p><?php esc_html_e( 'No blocks were found.', 'sherblock' ); ?></p>
-		<?php endif; ?>
+		<div class="sherblock-empty-state">
+			<span class="dashicons dashicons-screenoptions"></span>
+			<?php if ( $filters_active ) : ?>
+				<h3><?php esc_html_e( 'No matching blocks', 'sherblock' ); ?></h3>
+				<p><?php esc_html_e( 'No blocks match your search or filters. Try adjusting your criteria.', 'sherblock' ); ?></p>
+			<?php else : ?>
+				<h3><?php esc_html_e( 'No blocks found', 'sherblock' ); ?></h3>
+				<p><?php esc_html_e( 'No Gutenberg blocks are registered on this site yet.', 'sherblock' ); ?></p>
+			<?php endif; ?>
+		</div>
 	<?php else : ?>
 		<table class="widefat fixed striped sherblock-blocks-table">
 			<thead>
@@ -117,15 +168,29 @@ $pagination_args = [
 			</thead>
 			<tbody>
 				<?php foreach ( $blocks as $block ) : ?>
+					<?php
+					$provider_id   = $block->getProvider();
+					$provider_slug = sanitize_html_class( $provider_id );
+					?>
 					<tr>
 						<td>
 							<a href="<?php echo esc_url( admin_url( 'admin.php?page=sherblock-block-detail&block=' . rawurlencode( $block->getName() ) ) ); ?>">
 								<strong><?php echo esc_html( $block->getTitle() ); ?></strong>
 							</a>
 						</td>
-						<td><code><?php echo esc_html( $block->getName() ); ?></code></td>
+						<td>
+							<code><?php echo esc_html( $block->getName() ); ?></code>
+							<button type="button" class="sherblock-copy-btn" data-copy="<?php echo esc_attr( $block->getName() ); ?>" title="<?php esc_attr_e( 'Copy block name', 'sherblock' ); ?>">
+								<span class="dashicons dashicons-admin-page"></span>
+							</button>
+						</td>
 						<td><?php echo esc_html( $block->getCategory() ?: '—' ); ?></td>
-						<td><code><?php echo esc_html( $block->getProvider() ); ?></code></td>
+						<td>
+							<span class="provider-badge">
+								<span class="provider-dot provider-dot--<?php echo esc_attr( $provider_slug ); ?>"></span>
+								<code><?php echo esc_html( $provider_id ); ?></code>
+							</span>
+						</td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>
