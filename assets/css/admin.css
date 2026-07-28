@@ -1,0 +1,798 @@
+/**
+ * SherBlock Admin Styles
+ *
+ * Modern WP-native design that respects the user's admin color scheme.
+ * Uses CSS custom properties from WordPress admin for theming.
+ *
+ * @package SherBlock
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+	--sherblock-bg: #f0f0f1;
+	--sherblock-card-bg: #fff;
+	--sherblock-border: #c3c4c7;
+	--sherblock-text: #1d2327;
+	--sherblock-text-muted: #646970;
+	--sherblock-radius: 4px;
+	--sherblock-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+	--sherblock-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* ==========================================================================
+   Global Layout
+   ========================================================================== */
+
+.sherblock {
+	max-width: 1400px;
+}
+
+.sherblock .sherblock-page-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 24px;
+	flex-wrap: wrap;
+}
+
+.sherblock .sherblock-page-header h1 {
+	margin: 0;
+	font-size: 23px;
+	font-weight: 400;
+	line-height: 1.3;
+}
+
+.sherblock .sherblock-page-header .description {
+	margin: 4px 0 0;
+	color: var(--sherblock-text-muted);
+	font-size: 14px;
+}
+
+.sherblock .sherblock-page-header-actions {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+/* ==========================================================================
+   Stat Cards (Dashboard)
+   ========================================================================== */
+
+.sherblock-stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 16px;
+	margin-bottom: 32px;
+}
+
+.sherblock-stat-card {
+	background: var(--sherblock-card-bg);
+	border: 1px solid var(--sherblock-border);
+	border-radius: var(--sherblock-radius);
+	padding: 20px 24px;
+	box-shadow: var(--sherblock-shadow);
+	transition: box-shadow 0.15s ease;
+}
+
+.sherblock-stat-card:hover {
+	box-shadow: var(--sherblock-shadow-hover);
+}
+
+.sherblock-stat-card .stat-label {
+	display: block;
+	font-size: 13px;
+	color: var(--sherblock-text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 8px;
+}
+
+.sherblock-stat-card .stat-value {
+	display: block;
+	font-size: 32px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: var(--sherblock-text);
+}
+
+.sherblock-stat-card .stat-detail {
+	display: block;
+	font-size: 13px;
+	color: var(--sherblock-text-muted);
+	margin-top: 4px;
+}
+
+/* Stat card accent colors — uses WP admin theme color via opacity */
+.sherblock-stat-card--accent {
+	border-left: 4px solid var(--wp-admin-theme-color, #2271b1);
+}
+
+/* ==========================================================================
+   Dashboard Sections
+   ========================================================================== */
+
+.sherblock-dashboard-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 24px;
+	margin-bottom: 32px;
+}
+
+@media (max-width: 960px) {
+	.sherblock-dashboard-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.sherblock-panel {
+	background: var(--sherblock-card-bg);
+	border: 1px solid var(--sherblock-border);
+	border-radius: var(--sherblock-radius);
+	box-shadow: var(--sherblock-shadow);
+	overflow: hidden;
+}
+
+.sherblock-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border-bottom: 1px solid var(--sherblock-border);
+	background: #f9f9f9;
+}
+
+.sherblock-panel-header h2 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--sherblock-text);
+}
+
+.sherblock-panel-body {
+	padding: 0;
+}
+
+.sherblock-panel-footer {
+	padding: 12px 20px;
+	border-top: 1px solid var(--sherblock-border);
+	background: #f9f9f9;
+	text-align: center;
+}
+
+.sherblock-panel-footer a {
+	text-decoration: none;
+	color: var(--wp-admin-theme-color, #2271b1);
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.sherblock-panel-footer a:hover {
+	color: var(--wp-admin-theme-color-darker-10, #135e96);
+}
+
+/* ==========================================================================
+   Horizontal Bar Chart (CSS only)
+   ========================================================================== */
+
+.sherblock-bar-chart {
+	padding: 16px 20px;
+}
+
+.sherblock-bar-chart .bar-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.sherblock-bar-chart .bar-item:last-child {
+	margin-bottom: 0;
+}
+
+.sherblock-bar-chart .bar-label {
+	flex: 0 0 160px;
+	font-size: 13px;
+	color: var(--sherblock-text);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.sherblock-bar-chart .bar-track {
+	flex: 1;
+	height: 24px;
+	background: #f0f0f1;
+	border-radius: 3px;
+	overflow: hidden;
+	position: relative;
+}
+
+.sherblock-bar-chart .bar-fill {
+	height: 100%;
+	background: var(--wp-admin-theme-color, #2271b1);
+	border-radius: 3px;
+	transition: width 0.4s ease;
+	min-width: 2px;
+}
+
+.sherblock-bar-chart .bar-value {
+	flex: 0 0 50px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--sherblock-text);
+	text-align: right;
+}
+
+/* ==========================================================================
+   Provider Status List
+   ========================================================================== */
+
+.sherblock-provider-list {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.sherblock-provider-list li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 20px;
+	border-bottom: 1px solid #f0f0f1;
+	font-size: 14px;
+}
+
+.sherblock-provider-list li:last-child {
+	border-bottom: none;
+}
+
+.sherblock-provider-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.sherblock-provider-status--active {
+	color: #00a32a;
+}
+
+.sherblock-provider-status--inactive {
+	color: #d63638;
+}
+
+.sherblock-provider-status .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+}
+
+/* ==========================================================================
+   Quick Actions
+   ========================================================================== */
+
+.sherblock-quick-actions {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 32px;
+}
+
+.sherblock-quick-action {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 20px;
+	background: var(--sherblock-card-bg);
+	border: 1px solid var(--sherblock-border);
+	border-radius: var(--sherblock-radius);
+	box-shadow: var(--sherblock-shadow);
+	text-decoration: none;
+	color: var(--sherblock-text);
+	font-size: 14px;
+	font-weight: 500;
+	transition: all 0.15s ease;
+}
+
+.sherblock-quick-action:hover {
+	box-shadow: var(--sherblock-shadow-hover);
+	border-color: var(--wp-admin-theme-color, #2271b1);
+	color: var(--wp-admin-theme-color, #2271b1);
+}
+
+.sherblock-quick-action .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+/* ==========================================================================
+   Tables — Enhanced WP Native
+   ========================================================================== */
+
+.sherblock .widefat {
+	border-spacing: 0;
+	width: 100%;
+	clear: both;
+	margin: 0;
+}
+
+.sherblock .widefat th {
+	font-weight: 600;
+}
+
+.sherblock .widefat td,
+.sherblock .widefat th {
+	padding: 12px 10px;
+	line-height: 1.4;
+	vertical-align: top;
+}
+
+/* Provider color indicators */
+.sherblock .provider-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.sherblock .provider-dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.sherblock .provider-dot--core {
+	background: #2271b1;
+}
+
+.sherblock .provider-dot--acf {
+	background: #00a32a;
+}
+
+.sherblock .provider-dot--carbon-fields {
+	background: #9b59b6;
+}
+
+.sherblock .provider-dot--lazy-blocks {
+	background: #e67e22;
+}
+
+/* Status badges */
+.sherblock .status-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 3px;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.6;
+}
+
+.sherblock .status-badge--publish {
+	background: #edfaef;
+	color: #00a32a;
+}
+
+.sherblock .status-badge--draft {
+	background: #fcf0f1;
+	color: #d63638;
+}
+
+.sherblock .status-badge--pending {
+	background: #fef8ee;
+	color: #996800;
+}
+
+.sherblock .status-badge--private {
+	background: #f0f0f1;
+	color: #646970;
+}
+
+.sherblock .status-badge--future {
+	background: #e7f6ff;
+	color: #2271b1;
+}
+
+.sherblock .status-badge--trash {
+	background: #fcf0f1;
+	color: #d63638;
+}
+
+/* ==========================================================================
+   Block Detail — Two Column Layout
+   ========================================================================== */
+
+.sherblock-block-detail-layout {
+	display: grid;
+	grid-template-columns: 320px 1fr;
+	gap: 24px;
+	margin-top: 20px;
+}
+
+@media (max-width: 960px) {
+	.sherblock-block-detail-layout {
+		grid-template-columns: 1fr;
+	}
+}
+
+.sherblock-block-detail-sidebar .sherblock-panel {
+	position: sticky;
+	top: 32px;
+}
+
+.sherblock-meta-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.sherblock-meta-table th {
+	text-align: left;
+	padding: 10px 20px 10px 20px;
+	font-size: 13px;
+	color: var(--sherblock-text-muted);
+	font-weight: 500;
+	width: 40%;
+	background: transparent;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sherblock-meta-table td {
+	padding: 10px 20px 10px 0;
+	font-size: 13px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sherblock-meta-table tr:last-child th,
+.sherblock-meta-table tr:last-child td {
+	border-bottom: none;
+}
+
+/* ==========================================================================
+   Breadcrumb
+   ========================================================================== */
+
+.sherblock-breadcrumb {
+	margin-bottom: 16px;
+	font-size: 13px;
+}
+
+.sherblock-breadcrumb a {
+	text-decoration: none;
+	color: var(--sherblock-text-muted);
+}
+
+.sherblock-breadcrumb a:hover {
+	color: var(--wp-admin-theme-color, #2271b1);
+}
+
+.sherblock-breadcrumb .separator {
+	margin: 0 8px;
+	color: var(--sherblock-border);
+}
+
+/* ==========================================================================
+   Filter Toolbar
+   ========================================================================== */
+
+.sherblock-filter-bar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding: 12px 0;
+	margin-bottom: 16px;
+}
+
+.sherblock-filter-bar .search-input {
+	position: relative;
+}
+
+.sherblock-filter-bar .search-input .dashicons-search {
+	position: absolute;
+	left: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--sherblock-text-muted);
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	pointer-events: none;
+}
+
+.sherblock-filter-bar input[type="search"] {
+	padding-left: 32px !important;
+	min-width: 220px;
+}
+
+.sherblock-filter-bar select {
+	min-width: 140px;
+}
+
+/* Active filter pills */
+.sherblock-active-filters {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+}
+
+.sherblock-filter-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 10px;
+	background: var(--wp-admin-theme-color, #2271b1);
+	color: #fff;
+	border-radius: 3px;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.sherblock-filter-pill a {
+	color: #fff;
+	text-decoration: none;
+	margin-left: 4px;
+	opacity: 0.8;
+}
+
+.sherblock-filter-pill a:hover {
+	opacity: 1;
+}
+
+/* ==========================================================================
+   Empty States
+   ========================================================================== */
+
+.sherblock-empty-state {
+	text-align: center;
+	padding: 60px 20px;
+	color: var(--sherblock-text-muted);
+}
+
+.sherblock-empty-state .dashicons {
+	font-size: 48px;
+	width: 48px;
+	height: 48px;
+	color: var(--sherblock-border);
+	margin-bottom: 16px;
+}
+
+.sherblock-empty-state h3 {
+	margin: 0 0 8px;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--sherblock-text);
+}
+
+.sherblock-empty-state p {
+	margin: 0;
+	font-size: 14px;
+}
+
+/* ==========================================================================
+   Copy Button
+   ========================================================================== */
+
+.sherblock-copy-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	background: none;
+	border: 1px solid var(--sherblock-border);
+	border-radius: 3px;
+	padding: 2px 6px;
+	cursor: pointer;
+	color: var(--sherblock-text-muted);
+	font-size: 12px;
+	line-height: 1;
+	transition: all 0.15s ease;
+	vertical-align: middle;
+	margin-left: 6px;
+}
+
+.sherblock-copy-btn:hover {
+	border-color: var(--wp-admin-theme-color, #2271b1);
+	color: var(--wp-admin-theme-color, #2271b1);
+}
+
+.sherblock-copy-btn .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.sherblock-copy-btn.copied {
+	border-color: #00a32a;
+	color: #00a32a;
+}
+
+/* ==========================================================================
+   Re-index Progress
+   ========================================================================== */
+
+.sherblock-reindex-wrap {
+	margin: 24px 0;
+}
+
+.sherblock-progress-bar {
+	width: 100%;
+	height: 24px;
+	background: #f0f0f1;
+	border-radius: 3px;
+	overflow: hidden;
+	position: relative;
+}
+
+.sherblock-progress-bar .progress-fill {
+	height: 100%;
+	background: var(--wp-admin-theme-color, #2271b1);
+	border-radius: 3px;
+	transition: width 0.3s ease;
+	width: 0%;
+}
+
+.sherblock-progress-bar .progress-text {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--sherblock-text);
+}
+
+.sherblock-reindex-status {
+	margin-top: 8px;
+	font-size: 13px;
+	color: var(--sherblock-text-muted);
+}
+
+/* ==========================================================================
+   Recent Activity List
+   ========================================================================== */
+
+.sherblock-activity-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.sherblock-activity-list li {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	padding: 12px 20px;
+	border-bottom: 1px solid #f0f0f1;
+	font-size: 13px;
+}
+
+.sherblock-activity-list li:last-child {
+	border-bottom: none;
+}
+
+.sherblock-activity-list .activity-title {
+	font-weight: 500;
+	color: var(--sherblock-text);
+}
+
+.sherblock-activity-list .activity-meta {
+	color: var(--sherblock-text-muted);
+	margin-top: 2px;
+	font-size: 12px;
+}
+
+.sherblock-activity-list .activity-blocks {
+	flex-shrink: 0;
+	font-weight: 600;
+	font-size: 13px;
+	color: var(--sherblock-text);
+}
+
+/* ==========================================================================
+   Settings Page
+   ========================================================================== */
+
+.sherblock-settings-section {
+	background: var(--sherblock-card-bg);
+	border: 1px solid var(--sherblock-border);
+	border-radius: var(--sherblock-radius);
+	box-shadow: var(--sherblock-shadow);
+	margin-bottom: 24px;
+}
+
+.sherblock-settings-section .section-header {
+	padding: 16px 20px;
+	border-bottom: 1px solid var(--sherblock-border);
+	background: #f9f9f9;
+}
+
+.sherblock-settings-section .section-header h2 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.sherblock-settings-section .section-body {
+	padding: 20px;
+}
+
+.sherblock-settings-section .form-table th {
+	width: 200px;
+}
+
+/* Premium upsell */
+.sherblock-pro-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	background: #f0e6ff;
+	color: #7c3aed;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.sherblock-pro-notice {
+	background: #fef8ee;
+	border: 1px solid #f0c38e;
+	border-left: 4px solid #f0c38e;
+	padding: 16px 20px;
+	margin: 16px 0;
+	border-radius: 3px;
+}
+
+.sherblock-pro-notice p {
+	margin: 0;
+	font-size: 14px;
+}
+
+.sherblock-pro-notice .button {
+	margin-top: 8px;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 782px) {
+	.sherblock-stats-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.sherblock-block-detail-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.sherblock-filter-bar {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.sherblock-filter-bar input[type="search"] {
+		min-width: 100%;
+	}
+
+	.sherblock-bar-chart .bar-label {
+		flex: 0 0 100px;
+	}
+}
+
+@media (max-width: 480px) {
+	.sherblock-stats-grid {
+		grid-template-columns: 1fr;
+	}
+}
