@@ -14,26 +14,54 @@ namespace SherBlock\Support;
  */
 final class Cache {
 
-	private const GROUP = 'sherblock';
+	private const GROUP         = 'sherblock';
+	private const OPTION_PREFIX = 'sherblock_cache_v_';
 
 	public function get( string $key ): mixed {
-		// TODO: Try wp_cache_get(), fall back to get_transient().
-		unset( $key );
+		$prefixed = $this->prefixedKey( $key );
+
+		$cached = wp_cache_get( $prefixed, self::GROUP );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$transient = get_transient( $prefixed );
+
+		if ( false !== $transient ) {
+			return $transient;
+		}
 
 		return false;
 	}
 
 	public function set( string $key, mixed $value, int $ttl = 0 ): void {
-		// TODO: wp_cache_set() and set_transient() when $ttl > 0.
-		unset( $key, $value, $ttl );
+		$prefixed = $this->prefixedKey( $key );
+
+		wp_cache_set( $prefixed, $value, self::GROUP );
+
+		if ( $ttl > 0 ) {
+			set_transient( $prefixed, $value, $ttl );
+		}
 	}
 
 	public function delete( string $key ): void {
-		// TODO: wp_cache_delete() and delete_transient().
-		unset( $key );
+		$prefixed = $this->prefixedKey( $key );
+
+		wp_cache_delete( $prefixed, self::GROUP );
+		delete_transient( $prefixed );
 	}
 
 	public function flushGroup(): void {
-		// TODO: Bump cache version option or delete known transient keys.
+		$version_key = self::OPTION_PREFIX . 'group';
+		$version     = (int) get_option( $version_key, 0 );
+		update_option( $version_key, $version + 1 );
+	}
+
+	private function prefixedKey( string $key ): string {
+		$version     = (int) get_option( self::OPTION_PREFIX . 'group', 0 );
+		$version_key = self::OPTION_PREFIX . $version . '_';
+
+		return $version_key . $key;
 	}
 }

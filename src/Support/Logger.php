@@ -14,27 +14,52 @@ namespace SherBlock\Support;
  */
 final class Logger {
 
+	private const LOG_PREFIX = '[SherBlock] ';
+
 	/**
 	 * @param array<string, mixed> $context
 	 */
 	public function info( string $message, array $context = [] ): void {
-		// TODO: Log when WP_DEBUG_LOG is enabled.
-		unset( $message, $context );
+		if ( ! defined( 'WP_DEBUG_LOG' ) || ! WP_DEBUG_LOG ) {
+			return;
+		}
+
+		$this->log( 'INFO', $message, $context );
 	}
 
 	/**
 	 * @param array<string, mixed> $context
 	 */
 	public function error( string $message, array $context = [] ): void {
-		// TODO: Always log errors; include context as JSON when useful.
-		unset( $message, $context );
+		$this->log( 'ERROR', $message, $context );
 	}
 
 	/**
 	 * @param array<string, mixed> $context
 	 */
 	public function debug( string $message, array $context = [] ): void {
-		// TODO: Log only when WP_DEBUG and WP_DEBUG_LOG are true.
-		unset( $message, $context );
+		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+			return;
+		}
+
+		if ( ! defined( 'WP_DEBUG_LOG' ) || ! WP_DEBUG_LOG ) {
+			return;
+		}
+
+		$this->log( 'DEBUG', $message, $context );
+	}
+
+	/**
+	 * @param array<string, mixed> $context
+	 */
+	private function log( string $level, string $message, array $context = [] ): void {
+		$line = self::LOG_PREFIX . '[' . $level . '] ' . $message;
+
+		if ( ! empty( $context ) ) {
+			$line .= ' ' . wp_json_encode( $context );
+		}
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( $line );
 	}
 }
